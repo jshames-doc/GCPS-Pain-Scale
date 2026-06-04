@@ -32,6 +32,9 @@ export default function App() {
   const handleAnswer = (key, value) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
     
+    // Skip autoscroll on mobile (width < 768px)
+    if (window.innerWidth < 768) return;
+
     // For button-based questions, scroll with a short delay
     if (key === 'q1') {
       setTimeout(() => q2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
@@ -59,13 +62,17 @@ export default function App() {
     scrollTimeoutRef.current = setTimeout(() => {
       if (isResults) {
         setShowResults(true);
-        setTimeout(() => {
-          if (resultsRef.current) {
-            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
+        // We still want to show results, but maybe skip the smooth scroll on mobile
+        if (window.innerWidth >= 768) {
+          setTimeout(() => {
+            if (resultsRef.current) {
+              resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }
       } else {
-        if (targetRef.current) {
+        // Skip autoscroll to next question on mobile
+        if (window.innerWidth >= 768 && targetRef.current) {
           targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
@@ -126,7 +133,7 @@ export default function App() {
   return (
     <div className={cn("min-h-screen bg-clinical-50 font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 glass shadow-clinical px-4 py-3 flex justify-between items-center">
+      <header className="sticky top-0 z-50 bg-clinical-50 shadow-clinical px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl font-bold text-indigo-800 tracking-tight">{t.title}</h1>
         <button 
           onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
@@ -194,7 +201,8 @@ export default function App() {
         <AnimatePresence>
           {answers.q2 !== null && (
             <QuestionContainer ref={q3Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-4 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q3.text}</h2>
+              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q3.text}</h2>
+              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
                 {answers.q3 ?? 0}
               </div>
@@ -225,7 +233,8 @@ export default function App() {
         <AnimatePresence>
           {answers.q2 !== null && answers.q3 !== null && (
             <QuestionContainer ref={q4Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-4 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q4.text}</h2>
+              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q4.text}</h2>
+              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
                 {answers.q4 ?? 0}
               </div>
@@ -256,7 +265,8 @@ export default function App() {
         <AnimatePresence>
           {answers.q2 !== null && answers.q4 !== null && (
             <QuestionContainer ref={q5Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-4 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q5.text}</h2>
+              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q5.text}</h2>
+              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
                 {answers.q5 ?? 0}
               </div>
@@ -291,7 +301,7 @@ export default function App() {
               ref={resultsRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass rounded-[2rem] p-8 shadow-clinical-lg border border-indigo-100 space-y-8 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white"
+              className="rounded-[2rem] p-8 shadow-clinical-lg space-y-8 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white"
             >
               <div className="text-center space-y-3">
                 <h2 className="text-3xl font-bold tracking-tight">{t.results.title}</h2>

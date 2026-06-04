@@ -3,6 +3,7 @@ export const translations = {
     title: "Pain Inventory (GCPS-R)",
     language: "עברית",
     instructions: "Please answer the following questions about your pain.",
+    sliderHint: "Drag the slider button to the desired level",
     q1: {
       text: "1. In the past 3 months, how often did you have pain?",
       options: ["Never", "Some days", "Most days", "Every day"]
@@ -48,6 +49,7 @@ export const translations = {
     title: "שאלון הערכת כאב (GCPS-R)",
     language: "English",
     instructions: "אנא ענה על השאלות הבאות בנוגע לכאב שלך.",
+    sliderHint: "גרור את כפתור הסרגל לרמה הרצויה",
     q1: {
       text: "1. ב-3 החודשים האחרונים, באיזו תדירות חווית כאב?",
       options: ["אף פעם", "חלק מהימים", "רוב הימים", "כל יום"]
