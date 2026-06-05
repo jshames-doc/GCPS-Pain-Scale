@@ -160,13 +160,34 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
       {/* Header */}
       <header className="sticky top-0 z-50 bg-indigo-600 px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
-        <button 
-          onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm"
-        >
-          <Languages size={18} />
-          <span>{t.language}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <a 
+            href="https://pain.docrehab.org" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={cn(
+              "text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors",
+              isRtl ? "flex flex-col items-center leading-tight" : ""
+            )}
+          >
+            {isRtl ? (
+              <>
+                <span>←</span>
+                <span>חזרה לאתר הכאב</span>
+              </>
+            ) : (
+              <>← Back to Pain website</>
+            )}
+          </a>
+          <button 
+            onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
+            className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm text-xs sm:text-sm"
+          >
+            <Languages size={14} />
+            <span className="hidden sm:inline">{t.language}</span>
+            <span className="sm:hidden">{isRtl ? "EN" : "HE"}</span>
+          </button>
+        </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-10 space-y-14">
