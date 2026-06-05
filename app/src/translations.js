@@ -48,7 +48,8 @@ export const translations = {
       }
     },
     buttons: {
-      reset: "Start Over"
+      reset: "Start Over",
+      email: "Email report to Dr Shames"
     }
   },
   he: {
@@ -100,7 +101,8 @@ export const translations = {
       }
     },
     buttons: {
-      reset: "התחל מחדש"
+      reset: "התחל מחדש",
+      email: "שלח דוח במייל לד\"ר שיימס"
     }
   }
 };

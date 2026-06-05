@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { translations } from './translations';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Languages, RotateCcw } from 'lucide-react';
+import { Languages, RotateCcw, Mail } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -120,6 +120,35 @@ export default function App() {
     return t.results.pegInterpretation.severe;
   };
 
+  const generateEmailBody = () => {
+    const q1Answer = answers.q1 !== null ? t.q1.options[answers.q1] : 'N/A';
+    const q2Answer = answers.q2 !== null ? t.q2.options[answers.q2] : 'N/A';
+    const q3Answer = answers.q3 ?? 0;
+    const q4Answer = answers.q4 ?? 0;
+    const q5Answer = answers.q5 ?? 0;
+
+    return `GCPS-R Pain Inventory Results
+${'='.repeat(35)}
+
+Questions:
+1. Pain frequency (past 3 months): ${q1Answer}
+2. Life/work limitation (past 3 months): ${q2Answer}
+3. Pain level (0-10): ${q3Answer}
+4. Enjoyment interference (0-10): ${q4Answer}
+5. General activity interference (0-10): ${q5Answer}
+
+Results:
+${t.results.pegTotal}: ${score.pegTotal}
+${t.results.pegAverage}: ${score.pegAvg} (${getPegInterpretation(score.pegAvg)})
+${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
+  };
+
+  const handleEmailResults = () => {
+    const subject = encodeURIComponent('GCPS-R Pain Inventory Results');
+    const body = encodeURIComponent(generateEmailBody());
+    window.location.href = `mailto:jshames@gmail.com?subject=${subject}&body=${body}`;
+  };
+
   const reset = () => {
     setAnswers({ q1: null, q2: null, q3: 0, q4: 0, q5: 0 });
     setShowResults(false);
@@ -127,9 +156,9 @@ export default function App() {
   };
 
   return (
-    <div className={cn("min-h-screen bg-clinical-50 font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
+    <div className={cn("min-h-screen font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-indigo-600 shadow-clinical px-4 py-3 flex justify-between items-center">
+      <header className="sticky top-0 z-50 bg-indigo-600 px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
         <button 
           onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
@@ -335,6 +364,13 @@ export default function App() {
               >
                 <RotateCcw size={20} />
                 {t.buttons.reset}
+              </button>
+              <button 
+                onClick={handleEmailResults}
+                className="w-full flex items-center justify-center gap-2 bg-white/20 text-white font-bold py-4 rounded-xl hover:bg-white/30 transition-colors border border-white/30"
+              >
+                <Mail size={20} />
+                {t.buttons.email}
               </button>
             </motion.section>
           )}
