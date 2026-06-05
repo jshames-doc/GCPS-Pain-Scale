@@ -39,7 +39,13 @@ export const translations = {
         "Grade 2: Bothersome chronic pain",
         "Grade 3: High impact chronic pain"
       ],
-      description: "Note: PEG total is the sum of Q3, Q4, and Q5. PEG average is the total divided by 3."
+      description: "Note: PEG total is the sum of Q3, Q4, and Q5. PEG average is the total divided by 3.",
+      pegInterpretation: {
+        none: "No pain",
+        mild: "Mild pain",
+        moderate: "Moderate pain",
+        severe: "Severe pain"
+      }
     },
     buttons: {
       reset: "Start Over"
@@ -85,7 +91,13 @@ export const translations = {
         "דרגה 2: כאב כרוני מטריד",
         "דרגה 3: כאב כרוני בעל השפעה גבוהה"
       ],
-      description: "הערה: ציון PEG כולל הוא סכום השאלות 3, 4 ו-5. ממוצע PEG הוא הסכום חלקי 3."
+      description: "הערה: ציון PEG כולל הוא סכום השאלות 3, 4 ו-5. ממוצע PEG הוא הסכום חלקי 3.",
+      pegInterpretation: {
+        none: "ללא כאב",
+        mild: "כאב קל",
+        moderate: "כאב בינוני",
+        severe: "כאב חזק"
+      }
     },
     buttons: {
       reset: "התחל מחדש"

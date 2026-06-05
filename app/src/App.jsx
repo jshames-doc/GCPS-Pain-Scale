@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, forwardRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { translations } from './translations';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Languages, RotateCcw } from 'lucide-react';
@@ -44,7 +44,7 @@ export default function App() {
   };
 
   const handleSliderChange = (key, value) => {
-    setAnswers(prev => ({ ...prev, [key]: parseInt(value) }));
+    setAnswers(prev => ({ ...prev, [key]: parseInt(value, 10) }));
     
     // Clear any existing scroll timeout when the slider is moved
     if (scrollTimeoutRef.current) {
@@ -81,22 +81,10 @@ export default function App() {
   };
 
   const handleSliderEnd = (key) => {
-    // If the value was null (first touch), set it to the current slider value
-    if (answers[key] === null) {
-      // The current value is already in state from handleSliderChange
-    }
-
-    // Trigger the delayed scroll
     if (key === 'q3') triggerDelayedScroll(q4Ref);
     if (key === 'q4') triggerDelayedScroll(q5Ref);
     if (key === 'q5') triggerDelayedScroll(resultsRef, true);
   };
-
-  // Remove the previous immediate useEffect scroll
-  useEffect(() => {
-    // This effect is now just for initial showResults scroll if needed, 
-    // but we'll handle most scrolling in the event handlers for better control.
-  }, [showResults]);
 
   const calculateScore = () => {
     const { q1, q2, q3, q4, q5 } = answers;
@@ -122,7 +110,15 @@ export default function App() {
     return { pegTotal, pegAvg, grade };
   };
 
-  const score = calculateScore();
+  const score = useMemo(() => calculateScore(), [answers]);
+
+  const getPegInterpretation = (avg) => {
+    const val = parseFloat(avg);
+    if (val === 0) return t.results.pegInterpretation.none;
+    if (val > 0 && val < 4) return t.results.pegInterpretation.mild;
+    if (val >= 4 && val <= 7) return t.results.pegInterpretation.moderate;
+    return t.results.pegInterpretation.severe;
+  };
 
   const reset = () => {
     setAnswers({ q1: null, q2: null, q3: 0, q4: 0, q5: 0 });
@@ -168,7 +164,7 @@ export default function App() {
         {/* Question 2 */}
         <AnimatePresence>
           {answers.q1 !== null && (
-            <QuestionContainer ref={q2Ref} animate>
+            <QuestionContainer key="q2" ref={q2Ref} animate>
               <h2 className={cn("text-2xl font-bold mb-8 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q2.text}</h2>
               <div className="grid grid-cols-2 gap-3">
                 {t.q2.options.map((opt, i) => (
@@ -188,6 +184,7 @@ export default function App() {
         <AnimatePresence>
           {answers.q2 !== null && (
             <motion.div 
+              key="7days"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="py-6 text-center italic text-slate-600 font-medium text-lg border-y border-slate-200/60"
@@ -200,7 +197,7 @@ export default function App() {
         {/* Question 3 */}
         <AnimatePresence>
           {answers.q2 !== null && (
-            <QuestionContainer ref={q3Ref} animate>
+            <QuestionContainer key="q3" ref={q3Ref} animate>
               <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q3.text}</h2>
               <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
@@ -233,7 +230,7 @@ export default function App() {
         {/* Question 4 */}
         <AnimatePresence>
           {answers.q2 !== null && answers.q3 !== null && (
-            <QuestionContainer ref={q4Ref} animate>
+            <QuestionContainer key="q4" ref={q4Ref} animate>
               <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q4.text}</h2>
               <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
@@ -266,7 +263,7 @@ export default function App() {
         {/* Question 5 */}
         <AnimatePresence>
           {answers.q2 !== null && answers.q4 !== null && (
-            <QuestionContainer ref={q5Ref} animate>
+            <QuestionContainer key="q5" ref={q5Ref} animate>
               <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q5.text}</h2>
               <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
               <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
@@ -300,6 +297,7 @@ export default function App() {
         <AnimatePresence>
           {showResults && (
             <motion.section 
+              key="results"
               ref={resultsRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -318,6 +316,7 @@ export default function App() {
                 <div className="bg-white/10 rounded-2xl p-5 text-center backdrop-blur-sm border border-white/10">
                   <div className="text-sm font-medium opacity-80 mb-2">{t.results.pegAverage}</div>
                   <div className="text-4xl font-bold tabular-nums">{score.pegAvg}</div>
+                  <div className="text-xs opacity-70 mt-2">{getPegInterpretation(score.pegAvg)}</div>
                 </div>
               </div>
 
@@ -329,10 +328,6 @@ export default function App() {
                   {t.results.gradeNames[score.grade]}
                 </div>
               </div>
-
-              <p className="text-sm text-indigo-100 text-center italic opacity-80 leading-relaxed">
-                {t.results.description}
-              </p>
 
               <button 
                 onClick={reset}
@@ -349,7 +344,7 @@ export default function App() {
   );
 }
 
-const QuestionContainer = forwardRef(({ children, animate = false }, ref) => {
+function QuestionContainer({ children, animate = false, ref }) {
   const Component = animate ? motion.section : 'section';
   const props = animate ? {
     initial: { opacity: 0, y: 30 },
@@ -366,7 +361,7 @@ const QuestionContainer = forwardRef(({ children, animate = false }, ref) => {
       {children}
     </Component>
   );
-});
+}
 
 function ChoiceButton({ label, active, onClick }) {
   return (
@@ -409,7 +404,7 @@ function Slider({ value, onChange, onEnd, minLabel, maxLabel, isRtl }) {
       </div>
       <div className="flex justify-between px-1" dir="ltr">
         {[...Array(11)].map((_, i) => (
-          <div key={i} className={cn("text-sm font-medium transition-colors tabular-nums", value == i ? "text-indigo-600 font-bold" : "text-slate-300")}>
+          <div key={i} className={cn("text-sm font-medium transition-colors tabular-nums", value === i ? "text-indigo-600 font-bold" : "text-slate-300")}>
             {i}
           </div>
         ))}

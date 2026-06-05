@@ -73,10 +73,6 @@ input[type='range']::-moz-range-track {
   border-radius: 6px;
 }
 
-.scroll-mt-24 {
-  scroll-margin-top: 6rem;
-}
-
 /* Hebrew text optimization */
 [dir="rtl"] .hebrew-text {
   line-height: 1.6;
