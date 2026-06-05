@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { translations } from './translations';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Languages, RotateCcw, Mail } from 'lucide-react';
