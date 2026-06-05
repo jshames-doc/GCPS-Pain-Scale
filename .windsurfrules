@@ -1,0 +1,72 @@
+# GCPS-R Pain Scale — Windsurf Rules
+
+## Project Overview
+Single-page bilingual (EN/Hebrew) GCPS-R chronic pain questionnaire.
+Stack: React 19 + Vite 8 + Tailwind CSS v3 + framer-motion + lucide-react.
+
+## Repository Layout
+- All source lives in `app/src/` — do NOT create source files outside this directory.
+- `app/src/App.jsx` — single component containing all UI and business logic.
+- `app/src/translations.js` — all EN/Hebrew strings; flat object with `en` and `he` top-level keys.
+- `app/src/index.css` — global styles: glassmorphism, custom range slider, Tailwind base.
+- `app/src/main.jsx` — React entrypoint, renders `<App />`.
+- `app/dist/` — build output, **never commit**, listed in both `.gitignore` files.
+
+## Commands (always run from `app/`)
+- `npm run dev` — start Vite dev server (HMR).
+- `npm run build` — production build to `app/dist/`.
+- `npm run lint` — ESLint flat config (`eslint.config.js`). Run after every significant edit.
+- `npm run preview` — serve production build locally.
+
+## Language & Localisation
+- Default language is **Hebrew** (`useState('he')`). Never change this default.
+- RTL is handled via the `dir` attribute on the root `<div>`. Do NOT add CSS-in-JS or direction hacks.
+- Every user-facing string must be added to **both** `en` and `he` keys in `translations.js`.
+- Use `t = translations[lang]` for all string lookups inside `App.jsx`.
+
+## Scoring Logic (do not alter without explicit instruction)
+- PEG Total = Q3 + Q4 + Q5.
+- PEG Average = PEG Total / 3 (displayed to 1 decimal place).
+- GCPS-R Grade: 0 = not chronic, 1 = low impact, 2 = high impact (PEG ≥ 12), 3 = very high impact (high-frequency + high-interference). See `App.jsx:89-111`.
+- Chronicity threshold: Q1 index ≥ 2 ("Most days" or "Every day").
+- High impact threshold: chronic AND Q2 index ≥ 2.
+
+## UI / Interaction Conventions
+- Slider range: 0–10 for Q3, Q4, Q5.
+- Auto-scroll to next question after **3-second delay** on desktop only.
+- **No auto-scroll on mobile** (`window.innerWidth < 768`). Preserve this check in every scroll handler.
+- Button-based questions (Q1, Q2) scroll to next question after 400 ms.
+- `cn()` helper = `twMerge(clsx(...))`. Always use `cn()` for conditional Tailwind class merging; never use raw `clsx` alone.
+- Animations use `framer-motion` (`motion`, `AnimatePresence`). Keep motion consistent with existing variants.
+- Icons come from `lucide-react`. Do not add a second icon library.
+
+## Email / Results
+- Results are emailed via a `mailto:` link to `jshames@gmail.com`.
+- Do not replace this with a backend API call unless explicitly asked.
+
+## Styling Rules
+- Tailwind CSS v3 only — do not upgrade to v4 or add PostCSS plugins not already present.
+- Custom CSS goes in `index.css`, not in component files.
+- Do not introduce CSS Modules, styled-components, or Emotion.
+
+## TypeScript / Types
+- This project is plain JavaScript (`.jsx`). Do not convert files to `.tsx` or add `tsconfig.json`.
+- Do not add PropTypes unless explicitly requested.
+
+## Dependencies
+- Before adding any new package, confirm it is not already available via an existing dependency.
+- Keep the bundle lean — this is a single-page clinical tool, not a full application.
+- Never add a backend, database, or server-side framework.
+
+## Deployment
+- `deploy.bat` at repo root: builds from `app/`, then deploys to Google Cloud Run.
+  - Region: `me-west1`, service: `gcps-pain-scale`, project: `gen-lang-client-0026629090`.
+- Docker image: `nginx:alpine` serving `app/dist/`.
+- `default.conf.template` handles `$PORT` substitution via `envsubst`; cache headers are intentionally disabled for JS/CSS assets.
+- Do not modify `Dockerfile` or `default.conf.template` unless explicitly asked.
+
+## Code Quality
+- Run `npm run lint` before declaring any task complete.
+- Keep functions focused; if adding logic to `App.jsx` exceeds ~25 lines, extract a helper.
+- Do not leave `console.log` statements in committed code.
+- No `any`-equivalent patterns (avoid dynamic property access without justification).
