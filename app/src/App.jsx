@@ -133,11 +133,11 @@ export default function App() {
   return (
     <div className={cn("min-h-screen bg-clinical-50 font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-clinical-50 shadow-clinical px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-indigo-800 tracking-tight">{t.title}</h1>
+      <header className="sticky top-0 z-50 bg-indigo-600 shadow-clinical px-4 py-3 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
         <button 
           onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 border border-white/40 text-indigo-700 hover:bg-white/90 transition-colors font-medium shadow-sm"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm"
         >
           <Languages size={18} />
           <span>{t.language}</span>
@@ -218,6 +218,7 @@ export default function App() {
                 <button 
                   onClick={() => {
                     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+                    setAnswers(prev => ({ ...prev, q3: prev.q3 ?? 0 }));
                     q4Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
                   className="px-8 py-3 bg-clinical-100 text-slate-600 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors shadow-sm"
@@ -250,6 +251,7 @@ export default function App() {
                 <button 
                   onClick={() => {
                     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+                    setAnswers(prev => ({ ...prev, q4: prev.q4 ?? 0 }));
                     q5Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
                   className="px-8 py-3 bg-clinical-100 text-slate-600 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors shadow-sm"
@@ -385,7 +387,7 @@ function ChoiceButton({ label, active, onClick }) {
 function Slider({ value, onChange, onEnd, minLabel, maxLabel, isRtl }) {
   return (
     <div className="space-y-6 py-6">
-      <div className="relative h-14 flex items-center">
+      <div className="relative h-14 flex items-center" dir="ltr">
         <input 
           type="range"
           min="0"
@@ -397,17 +399,15 @@ function Slider({ value, onChange, onEnd, minLabel, maxLabel, isRtl }) {
           onMouseUp={() => onEnd()}
           onTouchEnd={() => onEnd()}
           className="w-full h-3 rounded-full appearance-none cursor-pointer"
-          style={{
-            background: `linear-gradient(to ${isRtl ? 'left' : 'right'}, #4f46e5 ${value * 10}%, #E2E8F0 ${value * 10}%)`
-          }}
+          style={{ '--slider-progress': `${value * 10}%` }}
         />
       </div>
 
-      <div className="flex justify-between text-sm font-bold text-slate-500 gap-4">
+      <div className="flex justify-between text-sm font-bold text-slate-500 gap-4" dir="ltr">
         <span className="flex-1 text-start leading-snug">{minLabel}</span>
         <span className="flex-1 text-end leading-snug">{maxLabel}</span>
       </div>
-      <div className="flex justify-between px-1">
+      <div className="flex justify-between px-1" dir="ltr">
         {[...Array(11)].map((_, i) => (
           <div key={i} className={cn("text-sm font-medium transition-colors tabular-nums", value == i ? "text-indigo-600 font-bold" : "text-slate-300")}>
             {i}

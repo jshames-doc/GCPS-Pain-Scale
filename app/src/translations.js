@@ -14,7 +14,7 @@ export const translations = {
     },
     last7Days: "Now think about pain you have had during the past 7 days...",
     q3: {
-      text: "3. What number best describes your pain, on average?",
+      text: "3. In the last seven days, what number best describes your pain, on average?",
       minLabel: "No pain",
       maxLabel: "Pain as bad as you can imagine"
     },
@@ -60,7 +60,7 @@ export const translations = {
     },
     last7Days: "כעת חשוב על הכאב שחווית במהלך 7 הימים האחרונים...",
     q3: {
-      text: "3. מהו המספר המתאר בצורה הטובה ביותר את הכאב שלך, בממוצע?",
+      text: "3. ב-7 הימים האחרונים, מהו המספר המתאר בצורה הטובה ביותר את הכאב שלך, בממוצע?",
       minLabel: "ללא כאב",
       maxLabel: "כאב חזק ככל שניתן לדמיין"
     },
