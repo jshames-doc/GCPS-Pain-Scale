@@ -47,6 +47,13 @@ export const translations = {
         "Bothersome",
         "High Impact"
       ],
+      gradeCellNames: [
+        "None",
+        "Mild",
+        "Bothersome",
+        "High"
+      ],
+      gradeScaleLabel: "Chronic Pain Grade Scale",
       pegScale: {
         none: "None",
         mild: "Mild",
@@ -113,6 +120,13 @@ export const translations = {
         "מטריד",
         "בעל השפעה גבוהה"
       ],
+      gradeCellNames: [
+        "ללא",
+        "קל",
+        "מטריד",
+        "גבוהה"
+      ],
+      gradeScaleLabel: "סולם דרגות כאב כרוני",
       pegScale: {
         none: "ללא",
         mild: "קל",

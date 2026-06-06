@@ -19,6 +19,7 @@ export default function App() {
     q5: null
   });
   const [showResults, setShowResults] = useState(false);
+  const [expandedGrade, setExpandedGrade] = useState(null);
   const scrollTimeoutRef = useRef(null);
   const t = translations[lang];
   const isRtl = lang === 'he';
@@ -189,7 +190,12 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
   const reset = () => {
     setAnswers({ q1: null, q2: null, q3: 0, q4: 0, q5: 0 });
     setShowResults(false);
+    setExpandedGrade(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const toggleGrade = (g) => {
+    setExpandedGrade(prev => prev === g ? null : g);
   };
 
   return (
@@ -430,6 +436,56 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                 </div>
                 <div className="text-sm font-medium text-slate-600 mt-4 pt-3 border-t border-slate-100">
                   {t.results.gradeNames[score.grade]}
+                </div>
+
+                {/* Grade Scale */}
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">
+                    {t.results.gradeScaleLabel}
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[0, 1, 2, 3].map(g => {
+                      const isUser = g === score.grade;
+                      const isExpanded = expandedGrade === g;
+                      return (
+                        <button
+                          key={g}
+                          onClick={() => toggleGrade(g)}
+                          aria-expanded={isExpanded}
+                          aria-label={t.results.gradeNames[g]}
+                          className={cn(
+                            "rounded-xl p-2 flex flex-col items-center justify-center min-h-[64px] transition-all touch-manipulation",
+                            isUser
+                              ? cn(gradeAccentBg[g], "text-white shadow-md")
+                              : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700",
+                            isExpanded && !isUser && "ring-2 ring-indigo-400",
+                            isExpanded && isUser && "ring-2 ring-white"
+                          )}
+                        >
+                          <div className="text-2xl font-black tabular-nums leading-none">{g}</div>
+                          <div className="text-[10px] font-bold leading-tight mt-1 text-center">
+                            {t.results.gradeCellNames[g]}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <AnimatePresence>
+                    {expandedGrade !== null && (
+                      <motion.div
+                        key={expandedGrade}
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="text-xs font-medium text-slate-700 bg-slate-100 rounded-lg p-2.5 text-center">
+                          {t.results.gradeNames[expandedGrade]}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
