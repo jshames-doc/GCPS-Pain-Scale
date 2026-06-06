@@ -188,7 +188,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
   };
 
   const reset = () => {
-    setAnswers({ q1: null, q2: null, q3: 0, q4: 0, q5: 0 });
+    setAnswers({ q1: null, q2: null, q3: null, q4: null, q5: null });
     setShowResults(false);
     setExpandedGrade(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
