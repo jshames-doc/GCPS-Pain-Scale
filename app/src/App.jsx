@@ -112,6 +112,14 @@ export default function App() {
 
   const score = useMemo(() => calculateScore(), [answers]);
 
+  const answeredCount = [answers.q1, answers.q2, answers.q3, answers.q4, answers.q5].filter(v => v !== null).length;
+  const isComplete = showResults;
+  const currentQ = isComplete ? 5 : Math.min(answeredCount + 1, 5);
+  const progressPercent = (answeredCount / 5) * 100;
+  const progressText = isComplete
+    ? t.progressComplete
+    : t.progressLabel.replace('{current}', currentQ).replace('{total}', 5);
+
   const getPegInterpretation = (avg) => {
     const val = parseFloat(avg);
     if (val === 0) return t.results.pegInterpretation.none;
@@ -187,35 +195,50 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
   return (
     <div className={cn("min-h-screen font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-indigo-600 px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
-        <div className="flex items-center gap-3">
-          <a 
-            href="https://pain.docrehab.org" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className={cn(
-              "text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors",
-              isRtl ? "flex flex-col items-center leading-tight" : ""
-            )}
-          >
-            {isRtl ? (
-              <>
-                <span>←</span>
-                <span>חזרה לאתר הכאב</span>
-              </>
-            ) : (
-              <>← Back to Pain website</>
-            )}
-          </a>
-          <button 
-            onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
-            className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm text-xs sm:text-sm"
-          >
-            <Languages size={14} />
-            <span className="hidden sm:inline">{t.language}</span>
-            <span className="sm:hidden">{isRtl ? "EN" : "HE"}</span>
-          </button>
+      <header className="sticky top-0 z-50 bg-indigo-600">
+        <div className="px-4 py-3 flex justify-between items-center">
+          <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://pain.docrehab.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors",
+                isRtl ? "flex flex-col items-center leading-tight" : ""
+              )}
+            >
+              {isRtl ? (
+                <>
+                  <span>←</span>
+                  <span>חזרה לאתר הכאב</span>
+                </>
+              ) : (
+                <>← Back to Pain website</>
+              )}
+            </a>
+            <button
+              onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
+              className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm text-xs sm:text-sm"
+            >
+              <Languages size={14} />
+              <span className="hidden sm:inline">{t.language}</span>
+              <span className="sm:hidden">{isRtl ? "EN" : "HE"}</span>
+            </button>
+          </div>
+        </div>
+        <div className="px-4 pb-2.5 flex items-center gap-2.5">
+          <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
+            {progressText}
+          </span>
+          <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-white rounded-full"
+              initial={false}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            />
+          </div>
         </div>
       </header>
 
