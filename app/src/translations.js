@@ -30,8 +30,8 @@ export const translations = {
     },
     results: {
       title: "Your Results",
-      pegTotal: "PEG Total Score",
-      pegAverage: "PEG Average Score",
+      pegTotal: "PEG Total",
+      pegAverage: "PEG Average",
       grade: "GCPS-R Chronic Pain Grade",
       gradeNames: [
         "Grade 0: Chronic pain absent",
@@ -39,6 +39,18 @@ export const translations = {
         "Grade 2: Bothersome chronic pain",
         "Grade 3: High impact chronic pain"
       ],
+      gradeShortNames: [
+        "None",
+        "Mild",
+        "Bothersome",
+        "High Impact"
+      ],
+      pegScale: {
+        none: "None",
+        mild: "Mild",
+        moderate: "Moderate",
+        severe: "Severe"
+      },
       pegInterpretation: {
         none: "No pain",
         mild: "Mild pain",
@@ -82,8 +94,8 @@ export const translations = {
     },
     results: {
       title: "התוצאות שלך",
-      pegTotal: "ציון PEG כולל",
-      pegAverage: "ציון PEG ממוצע",
+      pegTotal: "PEG כולל",
+      pegAverage: "PEG ממוצע",
       grade: "דרגת כאב כרוני GCPS-R",
       gradeNames: [
         "דרגה 0: כאב כרוני אינו קיים",
@@ -91,6 +103,18 @@ export const translations = {
         "דרגה 2: כאב כרוני מטריד",
         "דרגה 3: כאב כרוני בעל השפעה גבוהה"
       ],
+      gradeShortNames: [
+        "ללא",
+        "קל",
+        "מטריד",
+        "בעל השפעה גבוהה"
+      ],
+      pegScale: {
+        none: "ללא",
+        mild: "קל",
+        moderate: "בינוני",
+        severe: "חמור"
+      },
       pegInterpretation: {
         none: "ללא כאב",
         mild: "כאב קל",

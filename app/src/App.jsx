@@ -120,6 +120,35 @@ export default function App() {
     return t.results.pegInterpretation.severe;
   };
 
+  const getPegBand = (avg) => {
+    const val = parseFloat(avg);
+    if (val === 0) return 'none';
+    if (val < 4) return 'mild';
+    if (val <= 7) return 'moderate';
+    return 'severe';
+  };
+
+  const gradeAccentBg = {
+    0: 'bg-emerald-500',
+    1: 'bg-lime-500',
+    2: 'bg-amber-500',
+    3: 'bg-rose-500',
+  };
+
+  const pegBarColor = {
+    none: 'bg-emerald-500',
+    mild: 'bg-lime-500',
+    moderate: 'bg-amber-500',
+    severe: 'bg-rose-500',
+  };
+
+  const pegChipStyle = {
+    none: 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200',
+    mild: 'bg-lime-100 text-lime-700 ring-1 ring-lime-200',
+    moderate: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200',
+    severe: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200',
+  };
+
   const generateEmailBody = () => {
     const q1Answer = answers.q1 !== null ? t.q1.options[answers.q1] : 'N/A';
     const q2Answer = answers.q2 !== null ? t.q2.options[answers.q2] : 'N/A';
@@ -346,47 +375,98 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         {/* Results */}
         <AnimatePresence>
           {showResults && (
-            <motion.section 
+            <motion.section
               key="results"
               ref={resultsRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-[2rem] p-8 shadow-clinical-lg space-y-8 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white"
+              className="rounded-[2rem] p-8 shadow-clinical-lg space-y-6 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white"
             >
               <div className="text-center space-y-3">
                 <h2 className="text-3xl font-bold tracking-tight">{t.results.title}</h2>
                 <div className="w-16 h-1.5 bg-white/30 mx-auto rounded-full" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 rounded-2xl p-5 text-center backdrop-blur-sm border border-white/10">
-                  <div className="text-sm font-medium opacity-80 mb-2">{t.results.pegTotal}</div>
-                  <div className="text-4xl font-bold tabular-nums">{score.pegTotal}</div>
+              {/* Grade Hero */}
+              <div className="bg-white rounded-3xl p-6 text-indigo-900 shadow-clinical-lg">
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black text-white shrink-0 shadow-lg",
+                    gradeAccentBg[score.grade]
+                  )}>
+                    {score.grade}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">
+                      {t.results.grade}
+                    </div>
+                    <div className="text-lg font-bold leading-tight text-indigo-900">
+                      {t.results.gradeShortNames[score.grade]}
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-white/10 rounded-2xl p-5 text-center backdrop-blur-sm border border-white/10">
-                  <div className="text-sm font-medium opacity-80 mb-2">{t.results.pegAverage}</div>
-                  <div className="text-4xl font-bold tabular-nums">{score.pegAvg}</div>
-                  <div className="text-xs opacity-70 mt-2">{getPegInterpretation(score.pegAvg)}</div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 text-indigo-900 shadow-clinical">
-                <div className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-2">
-                  {t.results.grade}
-                </div>
-                <div className="text-2xl font-bold leading-tight tracking-tight">
+                <div className="text-sm font-medium text-slate-600 mt-4 pt-3 border-t border-slate-100">
                   {t.results.gradeNames[score.grade]}
                 </div>
               </div>
 
-              <button 
+              {/* PEG Card */}
+              <div className="bg-white/10 rounded-2xl p-5 border border-white/10 backdrop-blur-sm space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-medium opacity-70 uppercase tracking-wider mb-1">
+                      {t.results.pegAverage}
+                    </div>
+                    <div className="text-4xl font-bold tabular-nums leading-none">
+                      {score.pegAvg}
+                      <span className="text-base font-normal opacity-50 ms-1.5">/ 10</span>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap",
+                    pegChipStyle[getPegBand(score.pegAvg)]
+                  )}>
+                    {getPegInterpretation(score.pegAvg)}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-700 ease-out",
+                        pegBarColor[getPegBand(score.pegAvg)]
+                      )}
+                      style={{ width: `${Math.min(100, (parseFloat(score.pegAvg) / 10) * 100)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider opacity-60 mt-2 px-0.5">
+                    <span>{t.results.pegScale.none}</span>
+                    <span>{t.results.pegScale.mild}</span>
+                    <span>{t.results.pegScale.moderate}</span>
+                    <span>{t.results.pegScale.severe}</span>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-white/15 flex items-center justify-between">
+                  <span className="text-xs font-medium opacity-70 uppercase tracking-wider">
+                    {t.results.pegTotal}
+                  </span>
+                  <span className="text-2xl font-bold tabular-nums">
+                    {score.pegTotal}
+                    <span className="text-sm font-normal opacity-50 ms-1.5">/ 30</span>
+                  </span>
+                </div>
+              </div>
+
+              <button
                 onClick={reset}
                 className="w-full flex items-center justify-center gap-2 bg-white text-indigo-600 font-bold py-4 rounded-xl hover:bg-indigo-50 transition-colors shadow-clinical-lg hover:shadow-xl"
               >
                 <RotateCcw size={20} />
                 {t.buttons.reset}
               </button>
-              <button 
+              <button
                 onClick={handleEmailResults}
                 className="w-full flex items-center justify-center gap-2 bg-white/20 text-white font-bold py-4 rounded-xl hover:bg-white/30 transition-colors border border-white/30"
               >
