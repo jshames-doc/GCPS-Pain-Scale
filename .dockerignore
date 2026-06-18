@@ -1,0 +1,16 @@
+# Exclude everything that's not needed by the Docker build
+app/node_modules
+app/src
+app/public
+app/*.json
+app/*.js
+app/*.html
+app/*.css
+.git
+*.pdf
+*.docx
+*.jpeg
+*.bat
+*.md
+.windsurfrules
+Dockerfile copy
