@@ -9,6 +9,17 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+function calculateScore(answers) {
+  const { q1, q2, q3, q4, q5 } = answers;
+  const pegTotal = (q3 ?? 0) + (q4 ?? 0) + (q5 ?? 0);
+  const pegAvg = (pegTotal / 3).toFixed(1);
+  const isChronic = q1 >= 2;
+  const isHighImpact = isChronic && q2 >= 2;
+  const grade = !isChronic ? 0 : isHighImpact ? 3 : pegTotal >= 12 ? 2 : 1;
+
+  return { pegTotal, pegAvg, grade };
+}
+
 export default function App() {
   const [lang, setLang] = useState('he'); // Default to Hebrew as requested
   const [answers, setAnswers] = useState({
@@ -87,31 +98,7 @@ export default function App() {
     if (key === 'q5') triggerDelayedScroll(resultsRef, true);
   };
 
-  const calculateScore = () => {
-    const { q1, q2, q3, q4, q5 } = answers;
-    const q3v = q3 ?? 0;
-    const q4v = q4 ?? 0;
-    const q5v = q5 ?? 0;
-    const pegTotal = q3v + q4v + q5v;
-    const pegAvg = (pegTotal / 3).toFixed(1);
-    
-    let grade = 0;
-    // q1 and q2 indices: 0: Never, 1: Some days, 2: Most days, 3: Every day
-    const isChronic = q1 >= 2; // Most days or Every day
-    const isHighImpact = isChronic && q2 >= 2; // Most days or Every day
-    
-    if (!isChronic) {
-      grade = 0;
-    } else if (isHighImpact) {
-      grade = 3;
-    } else {
-      grade = pegTotal >= 12 ? 2 : 1;
-    }
-
-    return { pegTotal, pegAvg, grade };
-  };
-
-  const score = useMemo(() => calculateScore(), [answers]);
+  const score = useMemo(() => calculateScore(answers), [answers]);
 
   const answeredCount = [answers.q1, answers.q2, answers.q3, answers.q4, answers.q5].filter(v => v !== null).length;
   const isComplete = showResults;
@@ -199,47 +186,47 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
   };
 
   return (
-    <div className={cn("min-h-screen font-sans text-slate-900 pb-20", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
+    <div className={cn("min-h-screen bg-clinical-50 font-sans text-ink pb-12", isRtl ? "rtl" : "ltr")} dir={isRtl ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-indigo-600">
-        <div className="px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-white tracking-tight">{t.title}</h1>
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/95 text-white shadow-lg shadow-ink/10 backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <h1 className="min-w-0 truncate text-base font-bold tracking-tight sm:text-lg">{t.title}</h1>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <a
               href="https://pain.docrehab.org"
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                "text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors",
-                isRtl ? "flex flex-col items-center leading-tight" : ""
-              )}
+              className="flex min-h-10 items-center rounded-xl px-2 text-lg font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:text-xs"
+              aria-label={t.backToSite}
             >
-              {isRtl ? (
-                <>
-                  <span>←</span>
-                  <span>חזרה לאתר הכאב</span>
-                </>
-              ) : (
-                <>← Back to Pain website</>
-              )}
+              <span aria-hidden="true">←</span>
+              <span className="hidden sm:inline">&nbsp;{t.backToSite}</span>
             </a>
             <button
               onClick={() => setLang(lang === 'en' ? 'he' : 'en')}
-              className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 transition-colors font-medium shadow-sm text-xs sm:text-sm"
+              aria-label={t.language}
+              className="flex min-h-10 items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-2.5 text-xs font-bold text-white transition-colors hover:bg-white/20 sm:px-3 sm:text-sm"
             >
-              <Languages size={14} />
+              <Languages size={15} />
               <span className="hidden sm:inline">{t.language}</span>
-              <span className="sm:hidden">{isRtl ? "EN" : "HE"}</span>
+              <span className="sm:hidden">{t.languageShort}</span>
             </button>
           </div>
         </div>
-        <div className="px-4 pb-2.5 flex items-center gap-2.5">
-          <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 pb-3 sm:px-6">
+          <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-white/70 sm:text-xs">
             {progressText}
           </span>
-          <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div
+            className="h-2 flex-1 overflow-hidden rounded-full bg-white/15"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={progressPercent}
+            aria-label={progressText}
+          >
             <motion.div
-              className="h-full bg-white rounded-full"
+              className="h-full rounded-full bg-electric-400"
               initial={false}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -248,16 +235,20 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-10 space-y-14">
+      <main className="mx-auto max-w-2xl space-y-7 px-4 py-6 sm:space-y-9 sm:px-6 sm:py-10">
         {/* Intro */}
-        <section className="text-center space-y-3">
-          <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-lg mx-auto">{t.instructions}</p>
+        <section className="rounded-3xl border border-ink/10 bg-white px-5 py-5 shadow-clinical sm:px-7 sm:py-6">
+          <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-electric-600 sm:text-xs">
+            <span className="h-2 w-2 rounded-full bg-electric-600" />
+            <span>{t.title}</span>
+          </div>
+          <p className="max-w-lg text-base font-medium leading-relaxed text-slate-600 sm:text-lg">{t.instructions}</p>
         </section>
 
         {/* Question 1 */}
-        <QuestionContainer>
-          <h2 className={cn("text-2xl font-bold mb-8 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q1.text}</h2>
-          <div className="grid grid-cols-2 gap-3">
+        <QuestionContainer eyebrow={`${t.questionLabel} 1 / 5`}>
+          <h2 className={cn("mb-6 text-xl font-bold tracking-tight text-ink sm:mb-8 sm:text-2xl", isRtl && "hebrew-text")}>{t.q1.text}</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {t.q1.options.map((opt, i) => (
               <ChoiceButton 
                 key={i} 
@@ -272,9 +263,9 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         {/* Question 2 */}
         <AnimatePresence>
           {answers.q1 !== null && (
-            <QuestionContainer key="q2" ref={q2Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-8 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q2.text}</h2>
-              <div className="grid grid-cols-2 gap-3">
+            <QuestionContainer key="q2" ref={q2Ref} animate eyebrow={`${t.questionLabel} 2 / 5`}>
+              <h2 className={cn("mb-6 text-xl font-bold tracking-tight text-ink sm:mb-8 sm:text-2xl", isRtl && "hebrew-text")}>{t.q2.text}</h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {t.q2.options.map((opt, i) => (
                   <ChoiceButton 
                     key={i} 
@@ -295,7 +286,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
               key="7days"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="py-6 text-center italic text-slate-600 font-medium text-lg border-y border-slate-200/60"
+              className="rounded-2xl border border-electric-600/20 bg-electric-50 px-4 py-4 text-center text-base font-semibold italic text-electric-800 sm:text-lg"
             >
               {t.last7Days}
             </motion.div>
@@ -305,11 +296,11 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         {/* Question 3 */}
         <AnimatePresence>
           {answers.q2 !== null && (
-            <QuestionContainer key="q3" ref={q3Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q3.text}</h2>
-              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
-              <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
-                {answers.q3 ?? 0}
+            <QuestionContainer key="q3" ref={q3Ref} animate eyebrow={`${t.questionLabel} 3 / 5`}>
+              <h2 className={cn("mb-1 text-xl font-bold tracking-tight text-ink sm:text-2xl", isRtl && "hebrew-text")}>{t.q3.text}</h2>
+              <p className="mb-4 text-xs font-medium text-slate-500">{t.sliderHint}</p>
+              <div className="rounded-2xl bg-ink px-4 py-5 text-center text-5xl font-black tabular-nums tracking-tight text-electric-300 sm:py-6 sm:text-6xl">
+                {answers.q3 ?? 0}<span className="ms-2 text-sm font-bold tracking-normal text-white/50">/ 10</span>
               </div>
               <Slider 
                 value={answers.q3 ?? 0} 
@@ -317,7 +308,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                 onEnd={() => handleSliderEnd('q3')}
                 minLabel={t.q3.minLabel}
                 maxLabel={t.q3.maxLabel}
-                isRtl={isRtl}
+                ariaLabel={t.q3.text}
               />
               <div className="flex justify-center mt-4">
                 <button 
@@ -326,9 +317,9 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                     setAnswers(prev => ({ ...prev, q3: prev.q3 ?? 0 }));
                     q4Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
-                  className="px-8 py-3 bg-clinical-100 text-slate-600 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors shadow-sm"
+                  className="min-h-11 rounded-xl border border-ink/10 bg-clinical-100 px-7 py-3 text-sm font-bold text-ink transition-colors hover:bg-clinical-200"
                 >
-                  {isRtl ? "המשך" : "Continue"}
+                  {t.continue}
                 </button>
               </div>
             </QuestionContainer>
@@ -338,11 +329,11 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         {/* Question 4 */}
         <AnimatePresence>
           {answers.q2 !== null && answers.q3 !== null && (
-            <QuestionContainer key="q4" ref={q4Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q4.text}</h2>
-              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
-              <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
-                {answers.q4 ?? 0}
+            <QuestionContainer key="q4" ref={q4Ref} animate eyebrow={`${t.questionLabel} 4 / 5`}>
+              <h2 className={cn("mb-1 text-xl font-bold tracking-tight text-ink sm:text-2xl", isRtl && "hebrew-text")}>{t.q4.text}</h2>
+              <p className="mb-4 text-xs font-medium text-slate-500">{t.sliderHint}</p>
+              <div className="rounded-2xl bg-ink px-4 py-5 text-center text-5xl font-black tabular-nums tracking-tight text-electric-300 sm:py-6 sm:text-6xl">
+                {answers.q4 ?? 0}<span className="ms-2 text-sm font-bold tracking-normal text-white/50">/ 10</span>
               </div>
               <Slider 
                 value={answers.q4 ?? 0} 
@@ -350,7 +341,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                 onEnd={() => handleSliderEnd('q4')}
                 minLabel={t.q4.minLabel}
                 maxLabel={t.q4.maxLabel}
-                isRtl={isRtl}
+                ariaLabel={t.q4.text}
               />
               <div className="flex justify-center mt-4">
                 <button 
@@ -359,9 +350,9 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                     setAnswers(prev => ({ ...prev, q4: prev.q4 ?? 0 }));
                     q5Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
-                  className="px-8 py-3 bg-clinical-100 text-slate-600 rounded-full font-bold text-sm hover:bg-slate-200 transition-colors shadow-sm"
+                  className="min-h-11 rounded-xl border border-ink/10 bg-clinical-100 px-7 py-3 text-sm font-bold text-ink transition-colors hover:bg-clinical-200"
                 >
-                  {isRtl ? "המשך" : "Continue"}
+                  {t.continue}
                 </button>
               </div>
             </QuestionContainer>
@@ -371,11 +362,11 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
         {/* Question 5 */}
         <AnimatePresence>
           {answers.q2 !== null && answers.q4 !== null && (
-            <QuestionContainer key="q5" ref={q5Ref} animate>
-              <h2 className={cn("text-2xl font-bold mb-1 tracking-tight text-slate-800", isRtl && "hebrew-text")}>{t.q5.text}</h2>
-              <p className="text-slate-400 text-xs font-medium mb-4">{t.sliderHint}</p>
-              <div className="text-6xl font-black text-indigo-600 text-center py-6 tabular-nums tracking-tight">
-                {answers.q5 ?? 0}
+            <QuestionContainer key="q5" ref={q5Ref} animate eyebrow={`${t.questionLabel} 5 / 5`}>
+              <h2 className={cn("mb-1 text-xl font-bold tracking-tight text-ink sm:text-2xl", isRtl && "hebrew-text")}>{t.q5.text}</h2>
+              <p className="mb-4 text-xs font-medium text-slate-500">{t.sliderHint}</p>
+              <div className="rounded-2xl bg-ink px-4 py-5 text-center text-5xl font-black tabular-nums tracking-tight text-electric-300 sm:py-6 sm:text-6xl">
+                {answers.q5 ?? 0}<span className="ms-2 text-sm font-bold tracking-normal text-white/50">/ 10</span>
               </div>
               <Slider 
                 value={answers.q5 ?? 0} 
@@ -383,7 +374,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                 onEnd={() => handleSliderEnd('q5')}
                 minLabel={t.q5.minLabel}
                 maxLabel={t.q5.maxLabel}
-                isRtl={isRtl}
+                ariaLabel={t.q5.text}
               />
               <div className="flex justify-center mt-4">
                 <button 
@@ -392,9 +383,9 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                     setShowResults(true);
                     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                   }}
-                  className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 shadow-clinical-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                  className="min-h-12 rounded-xl bg-electric-600 px-8 py-3 font-bold text-white shadow-lg shadow-electric-600/20 transition-all hover:-translate-y-0.5 hover:bg-electric-700 hover:shadow-xl"
                 >
-                  {isRtl ? "הצג תוצאות" : "Show Results"}
+                  {t.showResults}
                 </button>
               </div>
             </QuestionContainer>
@@ -409,7 +400,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
               ref={resultsRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-[2rem] p-8 shadow-clinical-lg space-y-6 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white"
+              className="space-y-5 rounded-[1.75rem] bg-ink p-4 text-white shadow-clinical-lg sm:space-y-6 sm:p-6"
             >
               <div className="text-center space-y-3">
                 <h2 className="text-3xl font-bold tracking-tight">{t.results.title}</h2>
@@ -417,7 +408,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
               </div>
 
               {/* Grade Hero */}
-              <div className="bg-white rounded-3xl p-6 text-indigo-900 shadow-clinical-lg">
+              <div className="rounded-2xl bg-clinical-50 p-5 text-ink shadow-clinical-lg sm:p-6">
                 <div className="flex items-center gap-4">
                   <div className={cn(
                     "w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black text-white shrink-0 shadow-lg",
@@ -426,10 +417,10 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                     {score.grade}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">
+                    <div className="text-[10px] font-bold text-electric-500 uppercase tracking-widest mb-1">
                       {t.results.grade}
                     </div>
-                    <div className="text-lg font-bold leading-tight text-indigo-900">
+                    <div className="text-lg font-bold leading-tight text-ink">
                       {t.results.gradeShortNames[score.grade]}
                     </div>
                   </div>
@@ -440,7 +431,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
 
                 {/* Grade Scale */}
                 <div className="mt-4 pt-4 border-t border-slate-100">
-                  <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">
+                  <div className="text-[10px] font-bold text-electric-500 uppercase tracking-widest mb-2">
                     {t.results.gradeScaleLabel}
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
@@ -458,7 +449,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
                             isUser
                               ? cn(gradeAccentBg[g], "text-white shadow-md")
                               : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700",
-                            isExpanded && !isUser && "ring-2 ring-indigo-400",
+                            isExpanded && !isUser && "ring-2 ring-electric-400",
                             isExpanded && isUser && "ring-2 ring-white"
                           )}
                         >
@@ -490,7 +481,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
               </div>
 
               {/* PEG Card */}
-              <div className="bg-white/10 rounded-2xl p-5 border border-white/10 backdrop-blur-sm space-y-4">
+              <div className="space-y-4 rounded-2xl border border-white/15 bg-white/10 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="text-xs font-medium opacity-70 uppercase tracking-wider mb-1">
@@ -540,7 +531,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
 
               <button
                 onClick={reset}
-                className="w-full flex items-center justify-center gap-2 bg-white text-indigo-600 font-bold py-4 rounded-xl hover:bg-indigo-50 transition-colors shadow-clinical-lg hover:shadow-xl"
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-white py-4 font-bold text-electric-600 shadow-clinical-lg transition-colors hover:bg-electric-50 hover:shadow-xl"
               >
                 <RotateCcw size={20} />
                 {t.buttons.reset}
@@ -560,7 +551,7 @@ ${t.results.grade}: ${t.results.gradeNames[score.grade]}`;
   );
 }
 
-function QuestionContainer({ children, animate = false, ref }) {
+function QuestionContainer({ children, animate = false, ref, eyebrow }) {
   const Component = animate ? motion.section : 'section';
   const props = animate ? {
     initial: { opacity: 0, y: 30 },
@@ -569,11 +560,14 @@ function QuestionContainer({ children, animate = false, ref }) {
   } : {};
 
   return (
-    <Component 
+    <Component
       ref={ref}
       {...props}
-      className="glass rounded-[2rem] p-8 shadow-clinical border border-white/40 scroll-mt-24"
+      className="rounded-3xl border border-ink/10 bg-white p-5 shadow-clinical scroll-mt-24 sm:p-7"
     >
+      <div className="mb-4 text-[10px] font-bold uppercase tracking-[0.16em] text-electric-600 sm:text-xs">
+        {eyebrow}
+      </div>
       {children}
     </Component>
   );
@@ -583,11 +577,12 @@ function ChoiceButton({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "py-5 px-4 rounded-2xl font-bold text-center transition-all duration-200 border-2 touch-manipulation leading-tight",
-        active 
-          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200/50 scale-[1.02] ring-2 ring-indigo-600 ring-offset-2 ring-offset-clinical-50" 
-          : "bg-white/60 backdrop-blur-sm border-slate-200/60 text-slate-600 hover:border-indigo-300 hover:bg-white/80 hover:shadow-md hover:-translate-y-0.5"
+        "min-h-14 rounded-xl border-2 px-4 py-4 text-center font-bold leading-tight transition-all duration-200 touch-manipulation",
+        active
+          ? "border-electric-600 bg-electric-600 text-white shadow-lg shadow-electric-600/20 ring-2 ring-electric-600 ring-offset-2 ring-offset-clinical-50"
+          : "border-ink/15 bg-white text-slate-700 hover:-translate-y-0.5 hover:border-electric-400 hover:bg-electric-50 hover:shadow-md"
       )}
     >
       {label}
@@ -595,32 +590,33 @@ function ChoiceButton({ label, active, onClick }) {
   );
 }
 
-function Slider({ value, onChange, onEnd, minLabel, maxLabel, isRtl }) {
+function Slider({ value, onChange, onEnd, minLabel, maxLabel, ariaLabel }) {
   return (
-    <div className="space-y-6 py-6">
-      <div className="relative h-14 flex items-center" dir="ltr">
-        <input 
+    <div className="space-y-4 py-4 sm:space-y-5 sm:py-5">
+      <div className="relative flex h-12 items-center" dir="ltr">
+        <input
           type="range"
           min="0"
           max="10"
           step="1"
           value={value}
+          aria-label={ariaLabel}
           onChange={(e) => onChange(e.target.value)}
           onPointerUp={() => onEnd()}
           onMouseUp={() => onEnd()}
           onTouchEnd={() => onEnd()}
-          className="w-full h-3 rounded-full appearance-none cursor-pointer"
+          className="h-3 w-full cursor-pointer appearance-none rounded-full"
           style={{ '--slider-progress': `${value * 10}%` }}
         />
       </div>
 
-      <div className="flex justify-between text-sm font-bold text-slate-500 gap-4" dir="ltr">
-        <span className="flex-1 text-start leading-snug">{minLabel}</span>
-        <span className="flex-1 text-end leading-snug">{maxLabel}</span>
+      <div className="flex justify-between gap-4 text-xs font-bold leading-snug text-slate-600 sm:text-sm" dir="ltr">
+        <span className="flex-1 text-start">{minLabel}</span>
+        <span className="flex-1 text-end">{maxLabel}</span>
       </div>
       <div className="flex justify-between px-1" dir="ltr">
         {[...Array(11)].map((_, i) => (
-          <div key={i} className={cn("text-sm font-medium transition-colors tabular-nums", value === i ? "text-indigo-600 font-bold" : "text-slate-300")}>
+          <div key={i} className={cn("text-xs font-medium tabular-nums transition-colors sm:text-sm", value === i ? "font-bold text-electric-600" : "text-slate-400")}>
             {i}
           </div>
         ))}
