@@ -43,9 +43,6 @@ export default function App() {
 
   const handleAnswer = (key, value) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
-    
-    // Skip autoscroll on mobile (width < 768px)
-    if (window.innerWidth < 768) return;
 
     // For button-based questions, scroll with a short delay
     if (key === 'q1') {
@@ -74,19 +71,13 @@ export default function App() {
     scrollTimeoutRef.current = setTimeout(() => {
       if (isResults) {
         setShowResults(true);
-        // We still want to show results, but maybe skip the smooth scroll on mobile
-        if (window.innerWidth >= 768) {
-          setTimeout(() => {
-            if (resultsRef.current) {
-              resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
-        }
-      } else {
-        // Skip autoscroll to next question on mobile
-        if (window.innerWidth >= 768 && targetRef.current) {
-          targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        setTimeout(() => {
+          if (resultsRef.current) {
+            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else if (targetRef.current) {
+        targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       scrollTimeoutRef.current = null;
     }, 3000);
