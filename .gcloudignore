@@ -1,0 +1,17 @@
+# Exclude everything not needed by the Cloud Run build context
+app/node_modules
+app/src
+app/public
+app/*.json
+app/*.js
+app/*.html
+app/*.css
+app/README.md
+.git
+*.pdf
+*.docx
+*.jpeg
+*.bat
+*.md
+.windsurfrules
+Dockerfile copy
